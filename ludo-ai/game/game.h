@@ -16,6 +16,7 @@ using namespace std;
 
 class game : public QThread
 {
+    friend class rl_player;
     Q_OBJECT
 private:
     bool game_complete;

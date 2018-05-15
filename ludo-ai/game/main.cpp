@@ -6,8 +6,11 @@
 #include "ludo_player_random.h"
 #include "positions_and_dice.h"
 #include <time.h>
+#include "rl_player.h"
 
-#define NUM_OF_GAMES_TO_PLAY 100
+
+#define NUM_OF_GAMES_TO_PLAY 5
+#define DELAY_GAME 0
 
 Q_DECLARE_METATYPE( positions_and_dice )
 
@@ -18,10 +21,12 @@ int main(int argc, char *argv[]){
     //instanciate the players here
 //    ludo_player p1, p2;
 //    ludo_player_random p3, p4;
-    ludo_player_random p1, p2,p3, p4;
+    rl_player p1;
+    //ludo_player p2,p3;//, p4;
+    ludo_player p2,p3,p4;
 
     game g;
-    g.setGameDelay(000); //if you want to see the game, set a delay
+    g.setGameDelay(DELAY_GAME); //if you want to see the game, set a delay
 
     /* Add a GUI <-- remove the '/' to uncomment block
     Dialog w;
@@ -56,21 +61,25 @@ int main(int argc, char *argv[]){
     QObject::connect(&g, SIGNAL(player4_end(std::vector<int>)),    &p4,SLOT(post_game_analysis(std::vector<int>)));
     QObject::connect(&p4,SIGNAL(turn_complete(bool)),              &g, SLOT(turnComplete(bool)));
 
-    time_t start_time = time(NULL);
+    //time_t start_time = time(NULL);
     for(int i = 0; i < NUM_OF_GAMES_TO_PLAY; ++i){
+      cout << "GAME # " << i << endl;
         g.start();
         a.exec();
         g.reset();
+        p1.reset(g.number_of_wins);
     }
+    p1.print_q_table();
+    p1.save_q_table();
     double num_played_games = g.number_of_wins[0] + g.number_of_wins[1] + g.number_of_wins[2] + g.number_of_wins[3];
     cout << "\------------------------"
          << "\nWin total of " << num_played_games << " played games"
-         << "\nPlayer 1: " << g.number_of_wins[0] << " times - " << g.number_of_wins[0]/num_played_games << " % winning rate"
-         << "\nPlayer 2: " << g.number_of_wins[1] << " times - " << g.number_of_wins[1]/num_played_games << " % winning rate"
-         << "\nPlayer 3: " << g.number_of_wins[2] << " times - " << g.number_of_wins[2]/num_played_games << " % winning rate"
-         << "\nPlater 4: " << g.number_of_wins[3] << " times - " << g.number_of_wins[3]/num_played_games << " % winning rate"
+         << "\nPlayer 1: " << g.number_of_wins[0] << " times - " << g.number_of_wins[0]/num_played_games*100 << " % winning rate"
+         << "\nPlayer 2: " << g.number_of_wins[1] << " times - " << g.number_of_wins[1]/num_played_games*100 << " % winning rate"
+         << "\nPlayer 3: " << g.number_of_wins[2] << " times - " << g.number_of_wins[2]/num_played_games*100 << " % winning rate"
+         << "\nPlater 4: " << g.number_of_wins[3] << " times - " << g.number_of_wins[3]/num_played_games*100 << " % winning rate"
          << "\n------------------------" << endl;
-    time_t end_time = time(NULL);
-    cout << "Time used to play: "  << NUM_OF_GAMES_TO_PLAY << " games: " << double(end_time-start_time) << " Seconds" << endl;
+    //time_t end_time = time(NULL);
+    //cout << "Time used to play: "  << NUM_OF_GAMES_TO_PLAY << " games: " << double(end_time-start_time) << " Seconds" << endl;
     return 0;
 }
